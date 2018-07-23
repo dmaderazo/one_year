@@ -1,0 +1,128 @@
+\documentclass[12pt,a4paper]{report}
+\author{D Maderazo}
+\usepackage{amsmath, amsthm, amssymb, textcomp, enumerate, multicol, fancyhdr, varwidth, graphicx, color, mathrsfs}
+\usepackage[left=25mm,right=25mm,top=30mm,bottom=30mm]{geometry}
+\usepackage{amsfonts}
+\usepackage[]{algorithm2e}
+\usepackage{csquotes}
+\linespread{1}
+\newtheorem*{mydef}{Definition}
+\newtheorem{mythm}{Theorem}
+\pagestyle{fancy}
+\lhead{}
+\rhead{Dominic Maderazo}
+\newcommand*\dee{\mathop{}\!\mathrm{d}}
+\newcommand*\del{\mathop{}\!\partial}
+\def\*#1{\mathbf{#1}}
+
+        
+\begin{document}
+
+\title{Application of Bayesian Techniques for Genome Segmentation Analysis}
+\date{\today}
+\author{Dominic Maderazo\and Supervisors: Jennifer Flegg \& Jonathan Keith}
+%        \and Richard Row, \LaTeX\ Academy}
+\maketitle
+
+%\tableofcontents
+\chapter{Literature Review}
+
+    \input{Biology2.tex}
+    
+\section{Sequence Alignment}
+    \input{Alignment.tex}
+	
+\section{Statistical Methods}
+\subsection{Statistical Inference}
+\input{Bayes.tex}
+
+\subsection{Sequence Segmentation}
+\input{sequenceSegmentation}
+
+\section{Markov Chain}
+\input{MarkovChains}
+
+\input{MCMC}
+\newpage
+\input{Enhancers}
+%\pagenumbering{gobble}
+\bibliographystyle{acm}
+\bibliography{DominicPhDLitReview}
+\end{document}
+
+% 	This section aims to outline the main ideas of the techniques and algorithms used in the analysis that are performed as well as including some indication to where they are applied.
+% 	\subsection{Metropolis Algorithm}
+% 	The Metropolis Algorithm is used to sample from distributions that might typically be intractable to sample from.
+% 	The steps for the algorithm is as follows. Let $f(x)$ be some function that is proportional to $P(x)$ the distribution to be sampled from. To initialize the algorithm first choose $x_0$ to be the first sample. The distribution $g(y|x)$, known as the jump distribution, is sampled from to generate candidate points. In general, $g$ can be arbitrary with the restriction that it is symmetric. That is, $g(y|x) = g(x|y)$. 
+% 		\begin{enumerate}
+% 			\item Generate a candidate point $x'$ from $g(x'|x_0)$.
+% 			\item Calculate the acceptance probability
+% 				\begin{equation}
+% 				\alpha = \frac{f(x')}{f(x_t)}
+% 				\end{equation}
+% 				and generate $r\sim U(0,1)$ and compare with $\alpha$ to decide whether or not to accept the candidate point probabilistically.
+% 			\item Repeat steps 1. and 2.
+% 		\end{enumerate}
+% 	\subsection{Gibbs Sampler}
+% 	The Gibbs sampler is presented as a method for sampling from some distribution over a set ${\mathscr X}$ with dimension $n$. Let $x = (x_1,...,x_n)$ and let us denote the $i^{th}$ sample as $x^{(i)} = (x_1^{(i)},...,x_n^{(i)})$.
+% 		\begin{enumerate}
+% 			\item Choose initial sample $x^{(i)} = (x_1^{(i)},...,x_n^{(i)})$.
+% 			\item To generate $x^{(i+1)}$, each component is conditionally sampled from by iteratively updating each of the other components. That is, to sample $x_j^{(i+1)}$ from the full conditional distribution
+% 				\begin{equation}
+% 				p(x_j^{(i+1)}|x_1^{(i+1)},...,x_{j-1}^{(i+1)},x_{j+1}^{(i)},...,x_n^{(i)}).
+% 				\end{equation}
+% 			\item Set $x^{(i+1)}$ to be the sample obtained after $x_n^{(i+1)}$ has been updated.
+% 			\item Repeat steps 2 and 3 above. 
+% 		\end{enumerate}
+% 	\subsection{Generalised Gibbs Sampler}
+% 	While the Gibbs sampler is used to draw from $n$ dimensional distributions, the Generalised Gibbs sampler, presented by Keith et al.\cite{keith2004generalized} can be used to draw from distributions of varying dimension. Suppose that we wish to sample from $f$ on a space $\mathscr X$. To outline the process that GGS uses to generate a Markov chain, consider a set ${\mathscr I}$ called the index set. It serves the purpose of cataloguing the types of transitions that are allowed to happen. Let ${\mathscr U = \mathscr I\times \mathscr X }$. $\mathscr U$ must be chosen such that the projections of $\mathscr U$ on the sets $\mathscr I$ and $\mathscr X$ are onto. The GGS operates in two steps: the $Q$ step, where the choice of transition types is made and the $R$ step where a transition of that type is made. To do the $Q$ step define $\mathscr Q(x)$ to be the set $\mathbf{u}=(i,x)\in \mathscr U$ for a given $x$. This set acts as a catalogue for the type of transitions that may be taken from $x$. Let $Q_x$ on $\mathscr Q(x)$ be the transition matrix used as a means for selecting the type of transition we may take from some $x\in\mathscr X$. The choice of $Q_x$ is arbitrary except for the condition that it must be irreducible to guarantee the existence of the stationary distribution $q_x$. If we denote $Q_x((i,x),(j,y))$ to be the probability of transitioning selecting transition type $j$. We let
+% 		\begin{equation}
+% 		Q(\*u,\*v) = 
+% 			\begin{cases}
+% 			Q_x(\*u,\*v), & \text{for } \*v \in \mathscr Q(x)\\
+% 			0 & \text{otherwise} 
+% 			\end{cases}
+% 		\end{equation}
+% 	denote choosing this transition type for $\*u=(i,x)$ and $\*v = (j,y)$. 
+% 	Next, to perform the $R$ step, define $\mathscr R(\*u)$ as the set of possible transitions from $\*u$. These sets must be chosen such that they form a partition of $\mathscr U$. The transition from $\*u$ to some other state $\*v = (j,y)$ is governed by the matrix
+% 		\begin{equation}
+% 		R(\*u,\*v) = 
+% 			\begin{cases}
+% 			\dfrac{f(y)q_y(\*v)}{\sum_{\*w\in\mathscr R(\*u)}f(z)q_z(\*w)}, & \text{for } \*v \in \mathscr R(\*u)\\
+% 			0 & \text{otherwise}\end{cases}
+% 		\end{equation}
+% 	where $\*w = (k,z)$. To summarise, the steps in the algorithm are as follows
+% 		\begin{enumerate}
+% 			\item Initialize state $U_i$.
+% 			\item Select the type of transition, by using the matrix $Q_x(\*u,\*v)$. (Q Step)
+% 			\item Perform a transition of the selected type by using $R(\*u,\*v)$. (R Step)
+% 			\item Set the result of this transition as $U_{i+1}$.
+% 			\item Repeat steps 2-4.
+% 		\end{enumerate}
+% 	The generates a Markov Chain in $\mathscr U$ where the projection on $\mathscr X$ is the distribution $f$.
+% \section{Genome Segmentation}
+% Traditional methods for the segmentation of genomes has primarily relied on varying types of analysis such as sliding window or {\color{red}ETC.}. Some advancements in field of segmentation have come from the incorporation of Bayesian techniques, such as the generalised Gibbs sampler to segment eukaryote genomes \cite{keith2006segmenting}.
+% The input required for the \texttt{changept} program is a sequence $S$ that is made from a finite alphabet $\{1,...,D\}$.
+% A segmentation of $S$ is composed of the number of change points $k$ and a vector $A = (A_1,..., A_k)$ containing the positions of change points.
+% Where $A_i$ is the position of the left most character in segment $i+1$.
+% Every segment in the sequence is assumed to have been drawn from independent trials out of $D$ possible outcomes. 
+
+% Let $\Theta_i = (\theta_{i,1},...,\theta_{i,D})$ be the vector containing the probabilities of the $D$ outcomes.
+% The probability of an observed sequence is then a product of binomial distributions
+% 	\begin{equation}
+% 	p(S|k,A,\Theta) = \prod_{i = 1}^{k + 1}\prod_{j = 1}^{D}\theta_{i,j}^{m_{ij}}
+% 	\end{equation}
+% where $m_{ij}$ is the number of times that character $j$ appears in segment $i$. 
+
+% A prior probability distribution must be specified. Let $\phi$ be the probability of a new a new segment. Then, 
+% 	\begin{equation}
+% 	p(k,A) = \phi^k(1-\phi)^{L-1-k}
+% 	\end{equation}
+% where $L$ is the length of $S$. The distribution
+% 	\begin{equation}
+% 	p(k,A,\Theta) = p(k,A)\prod_{i=1}^{k+1}p(\theta_i).
+% 	\end{equation}
+% Here, $p(\theta_i)$ is Dirichlet distributed with parameter vector $\alpha = (\alpha_1, ..., \alpha_D)$. The parameters $\phi$ and $\alpha$ are also incorporated into the inference. $\phi$ has prior distribution $Beta(a,b)$ and 
+% 	\begin{equation}
+% 	p(\alpha) \propto \left[\frac{\Gamma(\sum_{j}\alpha_j)}{\prod_j\Gamma(\alpha_j)}\right]^{c-1}e^{-d\sum_j\alpha_j}
+% 	\end{equation}

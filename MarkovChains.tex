@@ -1,0 +1,59 @@
+% \section{Definitions}
+%     \begin{itemize}
+%         \item A sequence$X_1, X_2, ...$ or random elements of some set is a \textbf{Markov Chain} if 
+%             $$P(X_{n+1}|X_n,...,X_1) = P(X_{n+1}|X_n) $$
+%         \item The transition probabilities are called \textbf{stationary} is $P(X_{n+1}|X_n)$ does not depend on $n$.
+        
+%         \item The marginal distribution of $X_1$ is called the \textbf{initial distribution}.
+        
+%         \item The distribution of $X_{n+1}|X_n$ is called the \textbf{transitional probability distribution}.
+        
+%         \item It's probably safe to assume stationary transition probabilities.
+        
+%         \item A Markov Chain is stationary iff the marginal distribution of $X_n$ does not depend on $n$.
+        
+%         \item An initial distribution is said to be \textbf{stationary} or \textbf{invariant} or        \textbf{equilibrium} for some transition probability distribution if the Markov Chain       specified by the initial distribution and transition probability distribution preserves the initial distribution. \textbf{Stationarity implies stationary transition probabilities but not vice versa.}
+        
+%         \item A transition probability distribution is \textbf{reversible} with respect to an initial distribution is, for some Markov Chain $X_1,X_2,...$ they specify, the distribution of pairs $(X_i,X_{i+1})$ is exchangeable.
+        
+%         \item A Markov Chain is reversible if its transition probability distribution is reversible wrt to its initial distribution. \textbf{Reversibility implies stationarity, but not vice versa.}
+        
+%         \item A Markov Chain is said to be \textbf{irreducible} if it is possible to get to any state from any state.
+        
+%         \item A state $i$ has period $k$ if any return to state $i$ must occur in multiples of $k$ time steps. 
+%             $$k = gcd\{n>0:P(X_n = i|X_o = i) > 0\}$$
+%         If $k=1$, then the state is said to be aperiodic. A Markov chain is \textbf{aperiodic} if all states are aperiodic. 
+        
+%         \item Define 
+%             $$f_i = P(X \text{ ever returns to }i|X_0 = i)$$
+%         State $i$ is said to be recurrent if $f_i = 1$ (or transient if $f_i < 1$.) I imagine that a Markov Chain is recurrent if all the states are recurrent?
+        
+%         \item For the \textbf{Ergodic Theorem} to apply, we require that a Markov Chain. An irreducible Markov Chain only needs one state to imply all states are aperiodic.
+        
+        
+%     \end{itemize}
+    
+A Markov chain is a sequence $X_{t_1}, X_{t_2}, ...$ of random elements in some set such that the distribution of transition probabilities at the next state of the chain, conditional on all previous states, depends only on the current state of the chain; that is 
+    \begin{equation}
+        P(X_{t_{n+1}}|X_{t_n},X_{t_{n-1}},\ldots X_{t_1}) = P(X_{t_{n+1}}|X_{t_n}).
+    \end{equation}
+% {\color{red}
+% {I'm not sure if the states should be upper case or lower case}}. 
+For illustrative purposes, here we only consider discrete time Markov chains on discrete state spaces. 
+The purpose of Markov chain Monte Carlo (MCMC) is generating a Markov chain so that the limiting distribution of $X_t$ as $t\rightarrow\infty$ is some $\pi$. 
+In practice, this $\pi$ is the posterior distribution obtained for some quantities of interest in a Bayesian framework. 
+Ensuring that the distribution of $X$ converges to $\pi$, the chain must be constructed with certain properties. However, to describe these mathematically it is necessary to define the probability that the chain moves from state $i$ to state $j$ in $t$ steps as $ P_{ij}(t) = P(X_t = j | X_0 = i)$
+and the first return time to state $i$ to be $\tau_{ii} = \min\{t>0:X_t = i|X_0 = i\}$
+    \begin{enumerate}[(i)]
+        \item A Markov chain is called \textbf{irreducible} if $\forall~i,j, \exists~t > 0$ such that $P_{ij}(t) > 0$.
+        % \item An irreducible chain is \textbf{recurrent} if $P(\tau_{ii} < \infty) = 1$ for some $i$.
+        % \item An irreducible recurrent chain is called \textbf{positive recurrent} if $E[\tau_{ii}]<\infty$ for some $i$.
+        \item An irreducible chain is \textbf{aperiodic} if for some $i$
+            $$gcd\{n>0:P(X_n = i|X_0 = i) > 0\} =1. $$
+    \end{enumerate}
+The irreducibility condition intuitively means that all states are reachable from any starting state in a finite number of steps, while requiring aperiodicity means that the chain will not oscillate between a subset of states in a periodic manner. 
+% Lastly, positive recurrence guarantees that once an iteration of the chain is sampled from the stationary distribution $\pi$, all subsequent iterations will also be distributed according to $\pi$.
+
+
+\subsection{Notes}
+    Try learn about markov chains in a countable vs general state space. See how theorems are posed and what differences they have in both cases. See how this then relates to the MCMC theorems about convergence. I THINK that Provided that a Markov chain, with a unique stationary distribution $\pi$ is irreducible and aperiodic, the chain will converge to $\pi$ i.e. $X_n \rightarrow \pi$ as $n\rightarrow\infty$

@@ -1,0 +1,225 @@
+\section{Markov Chain Monte Carlo}
+	The primary purpose of Markov chain Monte Carlo (MCMC) in the context of Bayesian inference is to sample from posterior distributions for which more efficient means of sampling are not available.
+	%obtained in doing Bayesian analysis. 
+	{\color{red}This is achieved by constructing a Markov Chain that is aperiodic and irreducible, (therefore ergodic) to ensure that the limiting distribution of the Markov chain is the the one that is desired to be sampled from. This method guarantees that $X_t\rightarrow\pi$ in in distribution $t\rightarrow\infty$}
+% 	{\color{red}Apparently we only ever make Markov Chains that are reversible. I think this might be so that the detailed balance equations hold, which is sufficient condition for ergodicity(?)}
+% 	\textbf{Practical considerations:} Mixing, convergence, proposal distributions, how long to run the chain. 
+	\subsection{Metropolis-Hastings Algorithm}
+	The Metropolis-Hastings (MH) Algorithm is the standard introduction to MCMC methods for sampling. Presented in 1970 by Hastings \cite{hastings1970monte}, it is an extension of the algorithm originally put forth by Metropolis in 1953 \cite{metropolis1953equation}.
+	The steps for the algorithm, also presented in Algorithm~\ref{alg:MetHast}, are as follows. Let $\pi(x)$ be the target density (up to a constant), defined on some set ${\mathscr X}$.
+	To initialize the algorithm let $x_0$ to be the first sample, chosen arbitrarily. In each iteration $g(y|x)$ 
+% 	({\color{red}Is it more conventional to write $g(Y|X)$ or does it not matter as long as it is consistent?}), 
+    known as the {\color{red}transition kernel} is sampled from to generate a candidate point. The candidate point $y$ is accepted with probability 
+	    \begin{equation}
+	        \alpha(x,y) = min\left(1,\frac{\pi(y)g(x|y)}{\pi(x)g(y|x)}\right).
+	    \end{equation}
+	If the candidate point is accepted, $x_{t+1} = y$, otherwise, $x_{t+1} = x_t$ and the next iteration is begun. In the original Metropolis algorithm, $g$ is chosen to be symmetric; that is $g(y|x) = g(x|y)$. However, in general $g$ can be arbitrary. There are smart ways to tune $g$ to ensure that the chain mixes adequately.
+	
+	\begin{algorithm}[H]
+	\label{alg:MetHast}
+ %\KwData{this text}
+ %\KwResult{how to write algorithm with \LaTeX2e }
+ Set $x_0$, $t=0$\; 
+ \Repeat{converged}{
+  Draw $y\sim g(y|x)$\;
+  Draw $u\sim U(0,1)$\;
+  \eIf{$u<\alpha(x,y)$}{
+   $x_{t+1} = y$\;
+   }{
+    $x_{t+1} = x_t$\;
+  }
+  Increment $t$\;
+ }
+% 		\begin{enumerate}
+% 			\item Generate a candidate point $x'$ from $g(x'|x_0)$.
+% 			\item Calculate the acceptance probability
+% 				\begin{equation}
+% 				\alpha = \frac{f(x')}{f(x_t)}
+% 				\end{equation}
+% 				and generate $r\sim U(0,1)$ and compare with $\alpha$ to decide whether or not to accept the candidate point probabilistically.
+% 			\item Repeat steps 1. and 2.
+% 		\end{enumerate}
+% 	\subsection{Gibbs Sampler}
+% 	The Gibbs sampler is presented as a method for sampling from some distribution over a set ${\mathscr X}$ with dimension $n$. Let $x = (x_1,...,x_n)$ and let us denote the $i^{th}$ sample as $x^{(i)} = (x_1^{(i)},...,x_n^{(i)})$.
+
+
+ \caption{Metropolis-Hastings Algorithm}
+\end{algorithm}
+
+\subsection{Gibbs Sampler}
+In general, the quantity $x$ is a vector and standard MH updates all the components at once. In contrast to this, there exist a class of MCMC methods known as Gibbs samplers, that iteratively update the components of $x$. The Gibbs Sampler originally presented by  Geman and Geman \cite{geman1984stochastic} is an example of one of these and can be shown to be a special case of single component MH \cite{gilks1995markov}. 
+% Rather than updating the entirety of $x$ as in the MH Algorithm, there exist a class of MCMC algorithms that update components of $x$ in an iterative fashion, the most popular of these being the Gibbs Sampler, originally formulated by Geman and Geman \cite{geman1984stochastic}. 
+Denote $x_. = (x_{.,1},\ldots x_{.,h})$. Note that each of the components of $x$ may possibly be of differing dimension. 
+% ({\color{red} I suspect that this has something to do with efficiency. I.e. you might want to group components together that have 'nice' conditional distributions?}).
+Introducing the notation $x_{.,-i} = (x_{.,-i},\ldots x_{.,i-1}, x_{.,i+1} \ldots x_{.,h})$, that is $x_{.,-i}$ comprises of all the components of $x_.$ except $x_{.,i}$. Gibbs sampling updates $x_{.,i}$ by drawing a candidate $y_i$ from $\pi(y_{.,i}|x_{.,-i})$, also known as the full conditional distribution. An advantage of the Gibbs Sampler is that all candidate points are accepted with probability 1.
+
+\begin{algorithm}[H]
+ %\KwData{this text}
+ %\KwResult{how to write algorithm with \LaTeX2e }
+ Set $x_0$, $t=0$\; 
+ \Repeat{converged}{
+    \For{$i$ = 1 to $h$}{
+  Draw $y\sim \pi(y_{t,i}|x_{t,-i})$\;
+  Set $x_{t,i} = y$
+  }
+  Set $x_{t+1} = x_t$\;
+  Increment $t$\;
+ }
+  \caption{Gibbs Sampling Algorithm}
+\end{algorithm}
+
+\section{When does MCMC have problems?}
+Traditional MCMC algorithms like (MH or Gibbs will work nicely in the majority of applications when the number of parameters wanting to be inferred is fixed and hence the target distribution is defined on a space of fixed dimension. In general, once the model is established, the application of MCMC for posterior inference is straight forward. In some situations, the posterior may be sensitive to model selection; for example, when the number of unknowns wanting to be inferred is also unknown. This leads to a situation where the posterior is defined on a space of unknown or unfixed dimension. A mention is made to Green who had originally proposed a MCMC method known as Reversible Jump Markov Chain Monte Carlo in response to this model selection problem by including the number of parameters into the inference  (for technical details see \cite{green1995reversible,  waagepetersen2001tutorial}). Instead, the generalized Gibbs sampler is presented below as an alternative way to sample from these spaces.
+\section{Generalized Gibbs Sampler}
+%So, here is my attempt to explain in my own words how the Generalised Gibbs Sampler (GGS) works!
+
+\subsection{Preamble} 
+Samplers based on MH or Gibbs can work very well when the distributions of interest are defined on spaces of fixed dimension. In the context of gene analysis, sometimes the distributions that need to be sampled from are defined on spaces without a fixed dimension. Standard MH or Gibbs fail in spaces like this but there exists a method known as the Generalised Gibbs Sampler, presented by Keith \emph{et al}. \cite{keith2004generalized}. {\color{red}{It can be shown that reversible jump is a speciial case (MAYBE MENTION THIS AT END?)}} 
+Rather than creating a Markov Chain on ${\mathscr X}$ this algorithm is generates a Markov Chain in the set $\mathscr U \subseteq \mathscr I \times \mathscr X$. Where $\mathscr I$ denotes the index set; a set that keeps indices of the type of transitions available at each step of the chain. The set $\mathscr U$ must be chosen such that the projections of $\mathscr U$ on the sets $\mathscr I$ and $\mathscr X$ are onto. The algorithm functions in two steps: the \textbf{Q Step} and the \textbf{R Step}, detailed below. 
+
+\subsection{Q Step} The Q step is about deciding what type of transition to make next. 
+To describe the Q step, it is necessary to define some objects. Let $\*u = (i,x) \in {\mathscr U}$, wehere $i\in \mathscr I$ and $x\in\mathscr X$.
+The set $\mathscr Q(x) = \{(i,z) \in \mathscr U : z = x\}$ is defined as the set of types of possible transitions available at $x$.
+Also, for every $x \in \mathscr X$ a transition matrix $\mathcal Q_x$ is defined on $\mathscr Q(x)$. Let $q_x$ be a distribution stationary with resepct to $\mathcal Q_x$, required for a subsequent step. 
+% {\color{red}I think this means that we have to construct $\mathcal Q_x$ to be aperiodic to ensure the existence of $q_x$. Is the stochastic process represented by $Q$ also a Markovian? Probably.}
+Also defined is
+	\begin{equation}
+		Q(\*u,\*v) = 
+			\begin{cases}
+			\mathcal Q_x(\*u,\*v), & \text{for } \*v \in \mathscr Q(x)\\
+			0 & \text{otherwise} 
+			\end{cases}
+		\end{equation}
+on $\mathscr U$ to be a global transition matrix from $\*u = (i,x)$ to $\*v = (j,y)$.
+
+Given that the system is in state $\*u = (i,x)$, carrying out the Q step is done by generating $\*v \in \mathscr Q(x)$, with a draw from the distribution of with density $Q(x,\cdot)$.
+
+\subsection{The R Step}
+Once the Q step has been performed, the R step is then about generating the next point in the chain. Again, it is necessary for some definitions.
+For each $\*u \in \mathscr U$, define the set $\mathscr R(\*u)$ as the set of possible transitions from $\*u$. The sets $\mathscr R(\*u)$ must form a partition of ${\mathscr U}$. 
+% {\color{red} Not entirely sure why this is a requirement. What happens if they don't form a partition? My initial guess is that there will be some states that aren't accessible OR YOU COULD JUST NOT HAVE THEM BE IN $\mathscr U$}
+Define $$\mathcal R_\*u(\*v) = \frac{s(\*u,\*v)f(y)q_y(\*v)}{\sum_{\*w\in\mathscr R(\*u)}f(z)q_z(\*w)}$$ to be the probability to transition from state $\*u$ to state $\*v\in\mathscr R(\*u)$. Here, $s$ is some symmetric, non-negative function and $f$ is the distribution of interest {\color{red}{should I change this to $\pi$ or change the others to $f$?}}. 
+A global transition matrix on ${\mathscr U}$ is defined to be
+\begin{equation}
+		R(\*u,\*v) = 
+			\begin{cases}
+			\dfrac{s(\*u,\*v)f(y)q_y(\*v)}{\sum_{\*w\in\mathscr R(\*u)}f(z)q_z(\*w)}, & \text{if } \*v \in \mathscr R(\*u)\setminus\{\*u\}\\
+			1 - \sum_{\*w \in \mathscr R(\*u)\setminus\*\{u\}} R(\*u,\*w) & 
+		    \text{if $\*v = \*u$}\\
+			0 & \text{otherwise}\end{cases}
+		\end{equation}
+	where $\*w = (k,z)$ and $\sum_{\*w \in \mathscr R(\*u)\setminus\*\{u\}} R(\*u,\*w) \leq 1$.
+After having selected $\*v \in \mathscr Q(\*u)$ by performing the Q step, generate $\*w \in \mathscr R(\*v)$ by drawing from $R(\*u,\cdot)$ and update the state of the chain to $\*w$.
+\subsection{Algorithm (GGS)}
+Repeating the Q step and R step of the algorithm generates a Markov chain $\{\*u_0,\*u_1,\ldots\}$ on $\mathscr U$ such that the projection on to $\mathscr X$ is the target distribution $\pi$.
+
+\begin{algorithm}[H]
+ %\KwData{this text}
+ %\KwResult{how to write algorithm with \LaTeX2e }
+ Set $\*u_0$, $t=0$\; 
+ \Repeat{converged
+ }{
+    Generate $\*v\in\mathscr Q(x) \sim \mathcal Q(\*u,\cdot)$\;
+    Generate $\*w\in\mathscr R(\*v)\sim R(\*v,\cdot)$\;
+    Set $\*u_{t+1} = \*w$\;
+    Increment $t$\;
+ }
+  \caption{Algorithm for the generalized Gibbs Sampler}
+\end{algorithm}
+
+
+% While the Gibbs sampler is used to draw from $n$ dimensional distributions, the Generalised Gibbs sampler, presented by Keith et al.\cite{keith2004generalized} can be used to draw from distributions of varying dimension. Suppose that we wish to sample from $f$ on a space $\mathscr X$. To outline the process that GGS uses to generate a Markov chain, consider a set ${\mathscr I}$ called the index set. It serves the purpose of cataloguing the types of transitions that are allowed to happen. Let ${\mathscr U = \mathscr I\times \mathscr X }$. $\mathscr U$ must be chosen such that the projections of $\mathscr U$ on the sets $\mathscr I$ and $\mathscr X$ are onto. The GGS operates in two steps: the $Q$ step, where the choice of transition types is made and the $R$ step where a transition of that type is made. To do the $Q$ step define $\mathscr Q(x)$ to be the set $\mathbf{u}=(i,x)\in \mathscr U$ for a given $x$. This set acts as a catalogue for the type of transitions that may be taken from $x$. Let $Q_x$ on $\mathscr Q(x)$ be the transition matrix used as a means for selecting the type of transition we may take from some $x\in\mathscr X$. The choice of $Q_x$ is arbitrary except for the condition that it must be irreducible to guarantee the existence of the stationary distribution $q_x$. If we denote $Q_x((i,x),(j,y))$ to be the probability of transitioning selecting transition type $j$. We let
+% 		\begin{equation}
+% 		Q(\*u,\*v) = 
+% 			\begin{cases}
+% 			Q_x(\*u,\*v), & \text{for } \*v \in \mathscr Q(x)\\
+% 			0 & \text{otherwise} 
+% 			\end{cases}
+% 		\end{equation}
+% 	denote choosing this transition type for $\*u=(i,x)$ and $\*v = (j,y)$. 
+% 	Next, to perform the $R$ step, define $\mathscr R(\*u)$ as the set of possible transitions from $\*u$. These sets must be chosen such that they form a partition of $\mathscr U$. The transition from $\*u$ to some other state $\*v = (j,y)$ is governed by the matrix
+% 		\begin{equation}
+% 		R(\*u,\*v) = 
+% 			\begin{cases}
+% 			\dfrac{f(y)q_y(\*v)}{\sum_{\*w\in\mathscr R(\*u)}f(z)q_z(\*w)}, & \text{for } \*v \in \mathscr R(\*u)\\
+% 			0 & \text{otherwise}\end{cases}
+% 		\end{equation}
+% 	where $\*w = (k,z)$. To summarise, the steps in the algorithm are as follows
+% 		\begin{enumerate}
+% 			\item Initialize state $U_i$.
+% 			\item Select the type of transition, by using the matrix $Q_x(\*u,\*v)$. (Q Step)
+% 			\item Perform a transition of the selected type by using $R(\*u,\*v)$. (R Step)
+% 			\item Set the result of this transition as $U_{i+1}$.
+% 			\item Repeat steps 2-4.
+% 		\end{enumerate}
+% 	The generates a Markov Chain in $\mathscr U$ where the projection on $\mathscr X$ is the distribution $f$.
+
+One of the benefits of the GGS is that it can sample from non-standard spaces where conventional Gibbs sampling may fail. Because its general nature the earlier MCMC samplers, including the Reversible Jump MCMC can be shown to be special cases of the GGS, with appropriate choice of Q,R and $s$.  %{\color{red}{This algorithm has been applied to sequence segmentation and stuff}}
+
+\subsection{Practical Considerations}
+
+% \section{Reversible Jump MCMC}
+% The Reversible Jump Markov chain Monte Carlo algorithm was originally presented as a way to select against competing candidate models with different numbers of parameters. It is also able to sample from sets where the elements may not be of fixed dimension. 
+
+% \subsection{Preamble}
+% Suppose you have a collection of models $\{\mathscr M_k : k\in\mathscr K\}$ such that model $\mathscr M_k$ has an associated parameter vector $\theta^{(k)} \in \mathbb{R}^{n_k}$. The set $\mathscr K$ is known as the index set and $n_k$ may differ in each model. Given observed data $D$, we can express the joint distribution of $(k,\theta^{(k)},D)$ as product of the model probability, prior and likelihood
+%     \begin{equation*}
+%         p(k,\theta^{(k)},D) = p(k)p(\theta^{(k)}|k)p(D|\theta^{(k)},k).
+%     \end{equation*}
+% For convenience, we denote $x = (k,\theta^{(k)}) \in \{k\}\times\mathscr
+% C_k$ and in general, $x$ will vary over $\mathscr C = \cup_{k\in\mathscr K}\mathscr C_k$
+
+% \subsection{Algorithm}
+% Suppose the chain is in current state $x_t = (k,\theta^{(k)})$. To generate a candidate point $y_{t+1}= (y^{ind}_{t+1},y^{par}_{t+1})$, we generate a candidate for the model indicator $y^{ind}_{t+1} = k' \in \mathscr K$ and parameter vector $y^{par}_{t+1} = \theta^{(k')}\in \mathbb{R}^{n_{k'}}$. 
+
+%     \begin{algorithm}[H]
+%     Set $x_0$, $t=0$\; 
+%     \Repeat{you're happy}{
+%     Generate $y^{ind}\sim p(k)$\;
+%     $y^{par}=g_{kk'}(x,u)$\;
+%     Generate $r\sim U(0,1)$\;
+%         \eIf{$r<\alpha_{kk'}(x,y)$}{
+%         $x_{t+1} = (y^{ind},y^{par})$}{
+%         $x_{t+1} = x_t$}
+%     Increment $t$\;
+%     }
+%   \caption{Reversible Jump MCMC}
+% \end{algorithm}
+% \subsubsection{Special things}
+% {\color{red}{For reasons I don't understand,}} it is convenient to generate the candidate $y^{par}_{t+1} = g_{1kk'}(x,u)$, where $u$ is some random vector on $\mathbb{R}^{n_{kk'}}$ with density $q_{kk'}(x,\cdot)$ and $g_{1kk'} : \mathbb{R}^{n_k + n_{kk'}}\rightarrow\mathbb{R}^{n_k'} $ is a deterministic function.
+% \\ \\
+% Consider the move from $(k,x)\to (k',x') = (k',g_{1kk'}(x,u))$ as well as the reverse move $(k',x')\to (k,x)=(k,g_{1k'k}(x',u'))$ in order for the current state of the Markov chain to have the same dimension as the proposed point, we must impose the dimension matching condition    
+%     \begin{equation}
+%         n_k + n_{kk'} = n_k' + n_{k'k}.
+%     \end{equation}
+% This ensures that the joint densities $f(x|m)q_{kk'}(x,u)$ and $f(x'|k')q_{k'k}(x',u')$
+% are defined on spaces of equal dimension.
+% \\ \\
+% Furthermore(!) there are also assumptions that there the functions $g_{2kk'}:\mathbb{R}^{n_k + n_{kk'}} \to \mathbb{R}^{n_{k'k}}$ and $g_{2k'k}:\mathbb{R}^{n_{k'}+n_{k'k}}\to \mathbb{R}^{n_{kk'}}$ exist so that the mapping 
+%     \begin{equation}
+%         (x',u') = g_{kk'}(x,u) = (g_{1kk'}(x,u),g_{2kk'}(x,u))
+%     \end{equation}
+% is one-to-one with
+%     \begin{equation}
+%          (x,u) = g^{-1}_{k'k}(x',u') = (g_{1k'k}(x',u'),g_{2k'k}(x',u'))
+%     \end{equation}
+% and that $g_{kk'}$ is differentiable (Because we need the Jacobian of this in the acceptance probability.)
+% \\ \\
+% Candidate points are accepted with probability
+%     \begin{equation}
+%         \alpha_{kk'}(x,x')=min\left(1,
+%         \frac{p(K = k')f(x'|K=k')p_{k'k}q_{k'k}(x',u')}{p(K=k)f(x|K=k)p_{kk'}q_{kk'}(x,u)}\left|\frac{\del g_{kk'}(x,u)}{\del x\del u}\right|\right) 
+%     \end{equation}
+% where
+%     \begin{equation}
+%         \frac{\del g_{kk'}(x,u)}{\del x\del u} = 
+%             \begin{bmatrix}
+%                  \frac{\del g_{1kk'}(x,u)}{\del x}       & \frac{\del g_{2k'k}(x,u)}{\del x}\\
+%                  \frac{\del g_{1kk'}(x,u)}{\del z}       & \frac{\del g_{2k'k}(x,u)}{\del x}
+%             \end{bmatrix}
+%     \end{equation}
+% \section{Comments}
+% The RJMCMC is a special case of the GGs, but I'm still ironing out the details!
+% \\ \\
+% The most burning question I have is how does one know what their target distribution $\pi$ look like? My feeling is that, in practice, $\pi$ is typically the posterior distribution obtained in the Bayesian framework and expressed in terms of the prior and likelihood distributions.
+% \\ \\ 

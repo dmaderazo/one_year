@@ -1,0 +1,13 @@
+Consider some data $D$ where the observations $X_i$ composed of individual observations $X_i\sim f(x|\theta)$. A classical problem in statistics is the estimation of the parameter $\theta$. The typical, frequentist approach to this problem is to obtain point estimates of $\theta$ for example, by maximum likelihood estimation. The Bayesian methodology provides an alternative approach to this problem. In this framework, the parameter $\theta$ is treated as a random variable one seeks to infer the distribution of. Given some prior distribution (belief) about the parameter $p(\theta)$ and the likelihood of the data conditional on the parameters $p(D|\theta)$ the posterior distribution $ p(\theta|D)$ for the parameter conditional on the data can be obtained by using Bayes' rule
+    \begin{equation}
+        p(\theta|D) = \frac{p(D|\theta)p(\theta)}{p(D)}.
+    \end{equation}
+The term in the denominator is known as the marginal likelihood $p(D)$. In practice the marginal likelihood is often difficult or intractable to obtain so the rule is often written as 
+    \begin{equation}
+        p(\theta|D) \propto p(D|\theta)p(\theta)
+    \end{equation}
+Often, it is be very difficult to sample from the posterior distribution directly since there may be no closed form for the distribution except in the simplest toy problems. In practice, {\color{red} Markov chain Monte Carlo (MCMC) is deployed in order to sample from these distributions. \textbf{Need to stress MCMC powers}} 
+% The advantage using a Bayesian framework is that rather than giving point estimates for quantities of interest, we are working in distributions and are able to give a have a measure of uncertainty. Given some prior distribution (belief) about our parameter $p(\theta)$ and the likelihood of the data, given the parameters $p(D|\theta)$ we can obtain what is known as the posterior distribution $ p(\theta|D)$ of the parameters given the data 
+%     \begin{equation}
+%         p(\theta|D) = \frac{p(D|\theta)p(\theta)}{p(D)}
+%     \end{equation}

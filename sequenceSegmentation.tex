@@ -1,0 +1,28 @@
+Change detection is a statistical problem concerned with determining when a change has occurred in a stochastic process underlying data generation. 
+Consider a game with $k_{max}$ $D$-sided dice, each with a different probability distribution governed by a parameter $\theta$ such that $\theta_i \neq \theta_j$. One of the dice is rolled an unknown number of times and changed for another. This process is repeated $\kappa \leq k_{max}$ number of times. A record of each of the outcomes of all dice are recorded. Given only the concatenation of all the outcomes, the goal of change point detection is to determine when the dice were changed and the distribution of each die. 
+% Consider a game where there are two coins with probability $\theta_1$ and $\theta_2$ of producing heads, with $\theta_1 \neq \theta_2$. One of the coins is flipped and unknown number of times and exchanged for the other, which is also flipped an unknown number of times. 
+% The sequence of the flips is recorded in sequence and this data is all that is known, as well as the number of coins.
+% In this example, the goal of change detection is to determine at what point the coins were exchanged as well as the estimation for the parameters $\theta_1$ and $\theta_2$. 
+
+In bioinformatics, it common for the number of change points to be unknown {\color{red}perhaps corresponding to the start and end of putative functional elements}; this is a typical extension of change point detection. To generalize the above problem to this context, the data of primary concern are sequences of amino acids or nucleotide bases with an unknown number of segments. 
+Instead of only dealing with two dice, there may be $k_{max}$ $D$-sided dice (with outcomes $\{1,\ldots,D\}$) having different biases (i.e that $\theta_i\neq \theta_j$ for $i\neq j$). Each die is rolled $C_i$ times in sequence until they have used $\kappa\leq k_{max}$ of the dice a total of 
+    \begin{equation}
+        J = \sum_{i=1}^{\kappa}C_i
+    \end{equation}
+number of times. Given only the concatenation of the outcomes $S$, the goal of the change point problem is to be able to determine the points where the opponent has switched dice.
+{\color{red}SOMETHING ABOUT SLIDING WINDOW. One approach to a change dection problem is the use of a sliding window analysis that take a sldkfasldkfjas;dlfkj something something. It is sensitive to window size. Noise. etc}
+
+The following is an outline of a Bayesian method for detecting change points, originally presented by Liu and Lawrence \cite{liu1999bayesian}. We define the change points $A_k$ to occur the first time a new die is used. That is
+    \begin{equation}
+        A_k = \sum_{\nu=0}^{k}C_\nu + 1
+    \end{equation}
+where $C_\nu$ is the number of times the $\nu$th dice was rolled, $C_0 = 0$ and $k = 1,\ldots,\kappa$. The quantities of interest are the number of change points $\kappa$ and their locations $\*A = (A_1,\ldots,A_\kappa)$. {\color{red} Work on a general framework on how sequence segmentation wotks in Bayesian}
+
+\textbf{In the log file:}
+    \begin{itemize}
+        \item Number of changepoints
+        \item Mixture values $\pi$ ($T$ many values)
+        \item $\beta$ parameters ($T$ groups of $D$ many values)
+    \end{itemize}
+    
+where $T$ is the number of segment classes/groups and $D$ is the size of the character alphabet.
